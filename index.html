@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultoria Financeira | Portfólio Estratégico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --olive: #215a60; --olive-light: #7A8A4E; --gold: #C9A84C; --gold-light: #E2C472;
+            --cream: #F5F0E8; --dark: #215a60; --mid: #215a60; --white: #FDFCF8;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:var(--dark); color:var(--white); height:100vh; overflow:hidden; user-select:none; }
+        
+        /* AJUSTE LOGO TOPO CENTRAL */
+        .logo-fixa-topo {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 120px; /* Ajuste o tamanho da sua logo aqui */
+            pointer-events: none;
+        }
+        .logo-fixa-topo img { width: 100%; height: auto; }
+
+        #deck { width:100vw; height:100vh; position:relative; }
+        .slide { position:absolute; inset:0; display:none; flex-direction:column; justify-content:center; align-items:center; padding:80px 80px 52px 80px; opacity:0; transition:opacity 0.4s ease; }
+        .slide.active { display:flex; opacity:1; }
+
+        /* Navegação */
+        #nav { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:16px; z-index:100; background:rgba(26,26,20,0.88); backdrop-filter:blur(12px); border:1px solid rgba(201,168,76,0.25); border-radius:50px; padding:10px 22px; }
+        #nav button { background:none; border:1px solid rgba(120, 76, 201, 0.4); color:var(--gold); padding:7px 18px; border-radius:30px; cursor:pointer; font-size:12px; font-weight:500; transition:all 0.2s; }
+        #nav button:hover { background:var(--gold); color:var(--dark); }
+        #slide-counter { font-size:11px; color:rgba(255,255,255,0.35); min-width:56px; text-align:center; letter-spacing:2px; }
+        #progress { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--gold),var(--olive-light)); transition:width 0.4s ease; z-index:100; }
+        .logo-badge { position:fixed; top:18px; right:28px; font-size:10px; color:var(--gold); opacity:0.55; letter-spacing:2px; text-transform:uppercase; z-index:100; }
+        
+        /* Helpers de Layout */
+        .inner { width:100%; max-width:1000px; margin:0 auto; }
+        .tag-linha { display:inline-block; border:1px solid var(--gold); color:var(--gold); font-size:10px; letter-spacing:4px; text-transform:uppercase; padding:6px 16px; margin-bottom:28px; }
+        .slide-title { font-family:'Playfair Display',serif; font-size:clamp(24px,3.2vw,40px); font-weight:700; line-height:1.2; margin-bottom:24px; }
+        .slide-title span { color:var(--gold); }
+        
+        /* Cards e Grids */
+        .cards-grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); width:100%; }
+        .card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:20px; border-top: 3px solid var(--gold); }
+        .card-title { color:var(--gold); font-weight:700; margin-bottom:8px; font-size:13px; text-transform:uppercase; }
+        .card-body { font-size:12px; color:rgba(255,255,255,0.6); line-height:1.6; }
+        .big-quote { font-family:'Playfair Display',serif; font-size:26px; font-style:italic; border-left: 4px solid var(--gold); padding-left:25px; line-height:1.4; color: var(--white); }
+
+        /* Estilo Apresentação (Baseado na Imagem) */
+        .apres-layout { display: flex; align-items: center; gap: 60px; width: 100%; }
+        .apres-photo-col { flex-shrink: 0; }
+        .apres-photo-ring { width: 280px; height: 350px; border: 1px solid var(--gold); border-radius: 15px; overflow: hidden; position: relative; }
+        .apres-photo-ring img { width: 100%; height: 100%; object-fit: cover; }
+        .apres-info-col { flex-grow: 1; }
+        .apres-nome { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; margin-bottom: 5px; }
+        .apres-nome span { color: var(--gold); }
+        .apres-cargo { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 30px; }
+        .apres-lista { list-style: none; }
+        .apres-lista li { margin-bottom: 15px; font-size: 14px; display: flex; align-items: flex-start; gap: 10px; color: rgba(255,255,255,0.8); }
+        .apres-lista li b { color: var(--gold); }
+        .apres-social { margin-top: 40px; display: flex; gap: 20px; font-size: 13px; color: var(--gold); font-weight: 600; }
+
+        /* Estilos de Seção e Tabelas */
+        .slide-capa { background: radial-gradient(circle at top right, #2a2a1d, #1a1a14); }
+        .slide-section { background: var(--olive); text-align: center; }
+        .price-table { width:100%; border-collapse:collapse; }
+        .price-table td, .price-table th { padding:12px; border-bottom:1px solid rgba(255,255,255,0.05); text-align:left; font-size: 13px; }
+        .price-table th { color:var(--gold); text-transform:uppercase; font-size: 11px; }
+        .check-icon { color:var(--gold); font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="logo-fixa-topo">
+        <img src="LOGO.png" alt="Logo Erika Freitas">
+    </div>
+
+    <div id="progress"></div>
+    <div class="logo-badge">MF Finanças | Excellence</div>
+    
+    <div id="deck">
+        <div class="slide slide-capa active">
+            <div class="inner">
+                <div class="tag-linha">Consultoria Financeira de Alto Padrão</div>
+                <h1 class="slide-title" style="font-size:64px">A Engenharia do<br><span>Lucro Real</span></h1>
+                <p style="color:rgba(255,255,255,0.5); max-width:500px; line-height:1.6; font-size: 14px;">Clareza financeira para transformar faturamento em liberdade e crescimento sustentável.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner">
+                <div class="apres-layout">
+                    <div class="apres-photo-col">
+                        <div class="apres-photo-ring">
+                            <img src="Foto.png" alt="Erika Freitas">
+                        </div>
+                    </div>
+                    <div class="apres-info-col">
+                        <span style="color:var(--gold); font-size:10px; letter-spacing:4px; text-transform:uppercase">Quem vai falar com você</span>
+                        <h2 class="apres-nome">ERIKA <span>FREITAS</span></h2>
+                        <p class="apres-cargo">Consultora Financeira · ADMINISTRATIVA · Maceió, AL</p>
+                        
+                        <ul class="apres-lista">
+                            <li><span class="check-icon">✦</span> <span><b>+10 anos de experiência</b> em gestão financeira empresarial</span></li>
+                            <li><span class="check-icon">✦</span> <span><b>A definir</b> A definir</span></li>
+                            <li><span class="check-icon">✦</span> <span><b>A definir</b> A definir</span></li>
+                            <li><span class="check-icon">✦</span> <span><b>A definir</b> A definir</span></li>
+                        </ul>
+
+                        <div class="apres-social">
+                            <span>Rede Social a definir</span>
+                            <span style="opacity:0.3">|</span>
+                            <span>Site a definir</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner">
+                <div class="tag-linha">Value Proposition</div>
+                <h2 class="slide-title">Inteligência além da <span>Planilha</span></h2>
+                <div class="big-quote">"Você não vende organização... você vende clareza para o crescimento."</div>
+                <div class="cards-grid" style="margin-top:30px">
+                    <div class="card"><div class="card-title">Clareza</div><div class="card-body">Saber exatamente para onde cada centavo está indo.</div></div>
+                    <div class="card"><div class="card-title">Segurança</div><div class="card-body">Decisões baseadas em dados, não em palpites.</div></div>
+                    <div class="card"><div class="card-title">Tempo</div><div class="card-body">Liberdade para focar na estratégia e no seu talento.</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide slide-section">
+            <div class="inner">
+                <span style="letter-spacing:5px; text-transform:uppercase; font-size:10px; color:var(--white)">Estrutura de Serviços</span>
+                <h2 class="slide-title" style="font-size:50px; color:white; margin-top:10px">Seu Portfólio de <span>Soluções</span></h2>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner">
+                <h2 class="slide-title">1. Diagnóstico <span>Estratégico</span></h2>
+                <p style="margin-bottom:20px; color:rgba(255,255,255,0.6)">A porta de entrada: Um Raio-X completo da saúde do negócio.</p>
+                <div class="cards-grid">
+                    <div class="card"><div class="card-title">Fluxos</div><div class="card-body">Mapeamento total de entradas e saídas.</div></div>
+                    <div class="card"><div class="card-title">Passivos</div><div class="card-body">Análise profunda de dívidas e compromissos.</div></div>
+                    <div class="card"><div class="card-title">Vazamentos</div><div class="card-body">Identificação de falhas graves na gestão atual.</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner">
+                <h2 class="slide-title">2. Organização <span>Financeira</span></h2>
+                <div class="big-quote">Colocando a casa em ordem para suportar o crescimento.</div>
+                <ul style="margin-top:25px; list-style:none; line-height:2">
+                    <li><span class="check-icon">✔</span> Implantação de Fluxo de Caixa Diário</li>
+                    <li><span class="check-icon">✔</span> Padronização de Controles e Planilhas</li>
+                    <li><span class="check-icon">✔</span> Separação Radical: Conta Pessoal vs Empresa</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner">
+                <h2 class="slide-title">3. Gestão e <span>Inteligência</span></h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-title">Precificação Científica</div>
+                        <div class="card-body">Formação de preço baseada em custos reais e margem desejada.</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Indicadores (KPIs)</div>
+                        <div class="card-body">Acompanhamento dos números que realmente movem o ponteiro do lucro.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner">
+                <h2 class="slide-title">4. Reestruturação de <span>Crise</span></h2>
+                <div class="card" style="border-top-color: #8B2E2E; background: rgba(139, 46, 46, 0.1);">
+                    <div class="card-title" style="color:#ff6b6b">Recuperação de Capital</div>
+                    <div class="card-body">Foco em redução drástica de dívidas, ajuste de gastos fixos e planejamento para recuperação de fôlego financeiro.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner">
+                <h2 class="slide-title">5. Acompanhamento <span>Contínuo</span></h2>
+                <div class="big-quote">Onde a recorrência gera estabilidade para o consultor e lucro para o cliente.</div>
+                <p style="margin-top:20px; color:var(--gold)">Reuniões Mensais · Análise de Resultados · Ajustes de Rota.</p>
+            </div>
+        </div>
+
+        <div class="slide slide-section">
+            <div class="inner">
+                <span style="letter-spacing:5px; text-transform:uppercase; font-size:10px; color:var(--white)">Comercial</span>
+                <h2 class="slide-title" style="font-size:50px; color:white; margin-top:10px">Planos de <span>Consultoria</span></h2>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner">
+                <h2 class="slide-title">Configurações de <span>Investimento</span></h2>
+                <table class="price-table">
+                    <thead>
+                        <tr><th>Serviço</th><th>Essencial</th><th>Profissional</th><th>Premium</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Diagnóstico e Fluxo</td><td>✔</td><td>✔</td><td>✔</td></tr>
+                        <tr><td>Gestão de Custos/Preço</td><td>-</td><td>✔</td><td>✔</td></tr>
+                        <tr><td>Planejamento Estratégico</td><td>-</td><td>-</td><td>✔</td></tr>
+                        <tr><td>Acompanhamento Mensal</td><td>-</td><td>-</td><td>✔</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="slide" style="background:var(--mid)">
+            <div class="inner">
+                <h2 class="slide-title">O Método <span>DO SUCESSO</span></h2>
+                <div class="cards-grid">
+                    <div class="card"><div class="card-title">1. Diagnosticar</div><div class="card-body">Entender a dor real.</div></div>
+                    <div class="card"><div class="card-title">2. Organizar</div><div class="card-body">Eliminar o caos.</div></div>
+                    <div class="card"><div class="card-title">3. Estruturar</div><div class="card-body">Criar a base técnica.</div></div>
+                    <div class="card"><div class="card-title">4. Crescer</div><div class="card-body">Aumentar o lucro.</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner">
+                <h2 class="slide-title">Jornada de <span>Implementação</span></h2>
+                <div style="border-left: 2px solid var(--gold); padding-left: 20px; display:flex; flex-direction:column; gap:15px">
+                    <div><b>Etapa 1:</b> Alinhamento de Dores e Expectativas.</div>
+                    <div><b>Etapa 2:</b> Coleta de Dados e Mapeamento de Oportunidades.</div>
+                    <div><b>Etapa 3:</b> Plano de Ação (Ajuste de Preços e Custos).</div>
+                    <div><b>Etapa 4:</b> Acompanhamento e Evolução de Resultados.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="inner" style="text-align:center">
+                <h2 class="slide-title">Como se <span>Posicionar</span></h2>
+                <div class="big-quote" style="border:none; padding:0">"Eu não organizo contas. Eu desenho o lucro do seu futuro."</div>
+                <div style="margin-top:30px; display:flex; justify-content:center; gap:20px">
+                    <div class="tag-linha">Estrategista de Resultados</div>
+                    <div class="tag-linha">Solucionadora Financeira</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide slide-section" style="background: radial-gradient(circle, var(--olive), var(--dark))">
+            <div class="inner">
+                <h2 class="slide-title" style="font-size:52px; color:white">Clareza gera <span>Lucro</span>.</h2>
+                <p style="letter-spacing:3px; text-transform:uppercase; font-size:12px; margin-bottom:40px">Organizamos seu financeiro para sua empresa crescer.</p>
+                <div class="tag-linha">ERIKA FREITAS - CONSULTORA FINANCEIRA E ADMINISTRATIVA - 2024</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="nav">
+        <button id="prevBtn">Anterior</button>
+        <div id="slide-counter">01 / 15</div>
+        <button id="nextBtn">Próximo</button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const counter = document.getElementById('slide-counter');
+        const progress = document.getElementById('progress');
+        let current = 0;
+
+        function update() {
+            slides.forEach((s, i) => {
+                s.classList.toggle('active', i === current);
+                s.style.display = i === current ? 'flex' : 'none';
+            });
+            counter.innerText = `${String(current + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+            progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+        }
+
+        nextBtn.onclick = () => { if(current < slides.length-1) { current++; update(); } };
+        prevBtn.onclick = () => { if(current > 0) { current--; update(); } };
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') nextBtn.click();
+            if(e.key === 'ArrowLeft') prevBtn.click();
+        });
+    </script>
+</body>
+</html>
